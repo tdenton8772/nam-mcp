@@ -38,6 +38,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.parse
 import urllib.request
 import urllib.error
 from dataclasses import asdict
@@ -904,7 +905,10 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         elif name == "doc_get":
             bucket = arguments["bucket"]
             key = arguments["key"]
-            return _json_result(_api_get(f"/v1/admin/docs/{bucket}/{key}"))
+            # One path segment: cluster-layout keys contain "#" and "|", and an
+            # unencoded "#" ends the URL path (everything after it was dropped).
+            return _json_result(_api_get(
+                f"/v1/admin/docs/{bucket}/{urllib.parse.quote(key, safe='')}"))
 
         else:
             return _error_result(f"Unknown tool: {name}")

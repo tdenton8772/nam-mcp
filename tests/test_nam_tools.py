@@ -708,6 +708,15 @@ class TestCallToolDocuments:
         assert data["doc"]["title"] == "Earth"
         mock_get.assert_called_once_with("/v1/admin/docs/main/doc1")
 
+    @patch("nam_tools._api_get")
+    async def test_doc_get_encodes_cluster_keys(self, mock_get):
+        """A #d key keeps its # and | as one path segment."""
+        mock_get.return_value = {"id": "x"}
+        await call_tool("doc_get", {"bucket": "nam",
+                                    "key": "_default_|_default_|BFO:0000031|42add6d8019a|#d|YEGE3HWJcQAg7duSKVjy5Q"})
+        mock_get.assert_called_once_with(
+            "/v1/admin/docs/nam/_default_%7C_default_%7CBFO%3A0000031%7C42add6d8019a%7C%23d%7CYEGE3HWJcQAg7duSKVjy5Q")
+
 
 # ---------------------------------------------------------------------------
 # Error handling
